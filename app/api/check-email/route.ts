@@ -11,8 +11,6 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ exists: false })
 
-    // Nota: listUsers() trae hasta 1000 usuarios en una sola página. 
-    // Para este proyecto es suficiente y funciona perfectamente de forma segura.
     const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
     if (error) throw error
 
