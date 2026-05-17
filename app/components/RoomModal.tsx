@@ -461,9 +461,20 @@ export default function RoomModal({ room, llegada: llegadaProp, salida: salidaPr
         body: JSON.stringify({ amount: total, reservationId: resId }),
       });
       
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error al conectar con Stripe.');
+      if (!response.ok) {
+        const text = await response.text();
+        let errMsg = 'Error al conectar con Stripe.';
+        try {
+          const json = JSON.parse(text);
+          if (json.error) errMsg = json.error;
+        } catch (e) {
+          console.error('Error de la API de Stripe:', text);
+          errMsg = `Error interno del servidor (${response.status}). Verifica los logs del backend.`;
+        }
+        throw new Error(errMsg);
+      }
       
+      const data = await response.json();
       setClientSecret(data.clientSecret);
     } catch (err: any) {
       setSavingError(err.message || 'Error al iniciar el pago. Intenta de nuevo.');
